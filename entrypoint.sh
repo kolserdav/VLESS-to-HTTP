@@ -4,12 +4,11 @@ set -eu
 CFG=/app/config.json
 
 # ---- read vless.conf, strip CR/LF and remove trailing comment after # ----
-if [ ! -s /app/vless.conf ]; then
-  echo "vless.conf not found or empty" >&2
+if [ -z "$VLESS_LINK" ]; then
+  echo "VLESS_LINK environment variable is not set or empty" >&2
   exit 23
 fi
-VLESS_URL="$(tr -d '\r\n' < /app/vless.conf)"
-VLESS_URL="${VLESS_URL%%#*}"
+VLESS_URL="${VLESS_LINK}"
 
 # ---- extract fields from URL ----
 USER_ID="$(printf '%s' "$VLESS_URL" | sed -n 's#^vless://\([^@/]*\).*#\1#p')"
@@ -136,7 +135,7 @@ cat > "$CFG" <<EOF
   "log": { "loglevel": "debug" },
   "inbounds": [
     {
-      "port": 8080,
+      "port": 9000,
       "protocol": "http",
       "listen": "0.0.0.0",
       "settings": { "allowTransparent": true, "timeout": 300 },
